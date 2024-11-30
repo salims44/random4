@@ -3,7 +3,7 @@ import hashlib
 import base58
 import time
 import requests
-import secrets  # For cryptographically secure random numbers
+import secrets 
 from flask import Flask
 from keep_alive import keep_alive
 
@@ -50,16 +50,19 @@ def main():
 
     start_time = time.time()
 
-    # Define the range limits
     start = int("4000000000000000000000000000000000", 16)
     end = int("7fffffffffffffffffffffffffffffffff", 16)
 
-    while True:  # Infinite loop, will stop when private key is found
-        # Generate a random private key within the range
-        private_key = secrets.randbelow(end - start) + start  # Ensure the key is in the specified range
+    last_check_time = time.time()
 
-        # Send to Discord about the private key being checked
-        send_to_discord(f"Checking private key {hex(private_key)}")
+    while True:
+
+        private_key = secrets.randbelow(end - start) + start  
+
+        current_time = time.time()
+        if current_time - last_check_time >= 1:
+            send_to_discord(f"Still checking...")
+            last_check_time = current_time
 
         public_key = private_key_to_public_key(private_key)
         public_key_hex = public_key.hex()
@@ -72,10 +75,7 @@ def main():
                 send_to_discord(found_message)
                 break
 
-        if private_key % 100000 == 0:
-            elapsed_time = time.time() - start_time
-            elapsed_message = f"Elapsed time: {elapsed_time:.2f} seconds"
-            send_to_discord(elapsed_message)
+        time.sleep(0.005)
 
 if __name__ == "__main__":
     main()
