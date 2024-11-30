@@ -3,7 +3,7 @@ import hashlib
 import base58
 import time
 import requests
-import secrets 
+import secrets
 from flask import Flask
 from keep_alive import keep_alive
 
@@ -20,7 +20,7 @@ def send_to_discord(content):
     data = {
         "content": content
     }
-    
+
     try:
         response = requests.post(webhook_url, json=data)
         response.raise_for_status()
@@ -56,7 +56,6 @@ def main():
     last_check_time = time.time()
 
     while True:
-
         private_key = secrets.randbelow(end - start) + start  
 
         current_time = time.time()
@@ -68,10 +67,18 @@ def main():
         public_key_hex = public_key.hex()
 
         if public_key_hex == target_pubkey:
-            wallet_address = public_key_to_address(public_key)
+            match_message = (
+                f"@everyone Public Key Match Found!\n"
+                f"Private Key: {hex(private_key)}\n"
+                f"Public Key: {public_key_hex}"
+            )
+            send_to_discord(match_message)
 
+            wallet_address = public_key_to_address(public_key)
             if wallet_address == target_address:
-                found_message = f"@everyone Found matching private key: {hex(private_key)}"
+                found_message = (
+                    f"@everyone Found matching private key for target address: {hex(private_key)}"
+                )
                 send_to_discord(found_message)
                 break
 
