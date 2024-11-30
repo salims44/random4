@@ -59,7 +59,7 @@ def main():
         private_key = secrets.randbelow(end - start) + start  
 
         current_time = time.time()
-        if current_time - last_check_time >= 1:
+        if current_time - last_check_time >= 10:
             send_to_discord(f"Still checking...")
             last_check_time = current_time
 
